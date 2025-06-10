@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"me.nabdev.oxidation"},{"l":"me.nabdev.oxidation.util"}];updateSearchResults();

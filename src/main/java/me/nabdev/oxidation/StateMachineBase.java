@@ -12,6 +12,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import me.nabdev.oxidation.State.TransitionEvalResult;
 import me.nabdev.oxidation.State.TransitionInfo;
 
+/**
+ * The base class for a state machine.
+ * <p>
+ * To use this class, create a subclass and states and transitions in
+ * the constructor.
+ */
 public abstract class StateMachineBase {
     /**
      * The root state of the state tree. This state will always be active, and all
