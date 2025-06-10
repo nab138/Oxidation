@@ -1,19 +1,38 @@
 package me.nabdev.oxidation.util;
 
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
+/**
+ * A wrapper around {@link CommandXboxController} that provides additional
+ * functionality for handling Xbox controller inputs using {@link SmartTrigger}
+ * and {@link SmartEventLoop}.
+ */
 public class SmartXboxController {
     private SmartEventLoop loop;
+    /**
+     * The underlying {@link CommandXboxController} instance.
+     */
     public CommandXboxController controller;
 
+    /**
+     * Constructs a SmartXboxController instance with the specified
+     * CommandXboxController and SmartEventLoop.
+     * 
+     * @param controller the CommandXboxController to wrap
+     * @param loop       the SmartEventLoop to attach the controller's events to
+     */
     public SmartXboxController(CommandXboxController controller, SmartEventLoop loop) {
         this.controller = controller;
         this.loop = loop;
     }
 
+    /**
+     * Returns the underlying {@link XboxController} instance.
+     * 
+     * @return the XboxController instance wrapped by this SmartXboxController
+     */
     public XboxController getHID() {
         return controller.getHID();
     }
@@ -25,7 +44,6 @@ public class SmartXboxController {
      *         attached to the {@link
      *         CommandScheduler#getDefaultButtonLoop() default scheduler button
      *         loop}.
-     * @see #leftBumper(EventLoop)
      */
     public SmartTrigger leftBumper() {
         return SmartTrigger.from(loop, controller.leftBumper());
@@ -38,7 +56,6 @@ public class SmartXboxController {
      *         attached to the {@link
      *         CommandScheduler#getDefaultButtonLoop() default scheduler button
      *         loop}.
-     * @see #rightBumper(EventLoop)
      */
     public SmartTrigger rightBumper() {
         return SmartTrigger.from(loop, controller.rightBumper());
@@ -51,7 +68,6 @@ public class SmartXboxController {
      *         attached to the
      *         {@link CommandScheduler#getDefaultButtonLoop() default scheduler
      *         button loop}.
-     * @see #leftStick(EventLoop)
      */
     public SmartTrigger leftStick() {
         return SmartTrigger.from(loop, controller.leftStick());
@@ -64,7 +80,6 @@ public class SmartXboxController {
      *         signal attached to the
      *         {@link CommandScheduler#getDefaultButtonLoop() default scheduler
      *         button loop}.
-     * @see #rightStick(EventLoop)
      */
     public SmartTrigger rightStick() {
         return SmartTrigger.from(loop, controller.rightStick());
@@ -77,7 +92,6 @@ public class SmartXboxController {
      *         to the {@link
      *         CommandScheduler#getDefaultButtonLoop() default scheduler button
      *         loop}.
-     * @see #a(EventLoop)
      */
     public SmartTrigger a() {
         return SmartTrigger.from(loop, controller.a());
@@ -90,7 +104,6 @@ public class SmartXboxController {
      *         to the {@link
      *         CommandScheduler#getDefaultButtonLoop() default scheduler button
      *         loop}.
-     * @see #b(EventLoop)
      */
     public SmartTrigger b() {
         return SmartTrigger.from(loop, controller.b());
@@ -103,7 +116,6 @@ public class SmartXboxController {
      *         to the {@link
      *         CommandScheduler#getDefaultButtonLoop() default scheduler button
      *         loop}.
-     * @see #x(EventLoop)
      */
     public SmartTrigger x() {
         return SmartTrigger.from(loop, controller.x());
@@ -116,7 +128,6 @@ public class SmartXboxController {
      *         to the {@link
      *         CommandScheduler#getDefaultButtonLoop() default scheduler button
      *         loop}.
-     * @see #y(EventLoop)
      */
     public SmartTrigger y() {
         return SmartTrigger.from(loop, controller.y());
@@ -129,7 +140,6 @@ public class SmartXboxController {
      *         attached to the {@link
      *         CommandScheduler#getDefaultButtonLoop() default scheduler button
      *         loop}.
-     * @see #start(EventLoop)
      */
     public SmartTrigger start() {
         return SmartTrigger.from(loop, controller.start());
@@ -142,7 +152,6 @@ public class SmartXboxController {
      *         attached to the {@link
      *         CommandScheduler#getDefaultButtonLoop() default scheduler button
      *         loop}.
-     * @see #back(EventLoop)
      */
     public SmartTrigger back() {
         return SmartTrigger.from(loop, controller.back());
@@ -232,7 +241,6 @@ public class SmartXboxController {
      *         to the {@link
      *         CommandScheduler#getDefaultButtonLoop() default scheduler button
      *         loop}.
-     * @see #button(int, EventLoop)
      */
     public SmartTrigger button(int button) {
         return SmartTrigger.from(loop, controller.button(button));

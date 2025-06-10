@@ -10,6 +10,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 import java.util.function.BooleanSupplier;
 
+/**
+ * A modified trigger to work with the {@link SmartEventLoop}.
+ */
 public class SmartTrigger implements BooleanSupplier {
     private final BooleanSupplier m_condition;
     private final SmartEventLoop m_loop;
@@ -30,6 +33,8 @@ public class SmartTrigger implements BooleanSupplier {
      * 
      * @param loop      The loop instance that polls this trigger
      * @param condition the condition represented by this trigger
+     * 
+     * @return a new SmartTrigger instance
      */
     public static SmartTrigger from(SmartEventLoop loop, BooleanSupplier condition) {
         return new SmartTrigger(loop, condition);

@@ -60,24 +60,32 @@ public abstract class StateMachineBase {
         }
     }
 
-    private String getTree() {
-        if (treeDirty) {
-            currentTree = getObjectForState(rootState).toString();
-            treeDirty = false;
-        }
-        return currentTree;
-    }
-
-    void markDirty() {
-        treeDirty = true;
-    }
-
+    /**
+     * Registers a state as a child of the root state of the state machine.
+     * 
+     * @param state the state to register
+     */
     public void registerToRootState(State... state) {
         for (State s : state) {
             rootState.children.add(s);
             s.setParentState(rootState);
         }
         markDirty();
+    }
+
+    /**
+     * Called when the state machine is started.
+     */
+    public void onStartup() {
+        currentState.onEnter();
+    }
+
+    private String getTree() {
+        if (treeDirty) {
+            currentTree = getObjectForState(rootState).toString();
+            treeDirty = false;
+        }
+        return currentTree;
     }
 
     private List<TransitionInfo> checkTransitions() {
@@ -107,6 +115,10 @@ public abstract class StateMachineBase {
             currentState = newState;
         }
         return transitionEvalResult.transitions();
+    }
+
+    void markDirty() {
+        treeDirty = true;
     }
 
     TransitionEvalResult traverseTransitions(State state, List<TransitionInfo> transitions) {
@@ -154,9 +166,5 @@ public abstract class StateMachineBase {
 
         return obj;
 
-    }
-
-    public void onStartup() {
-        currentState.onEnter();
     }
 }

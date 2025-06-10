@@ -20,12 +20,35 @@ import me.nabdev.oxidation.util.SmartTrigger;
  * A state in a state machine.
  */
 public abstract class State {
+    /**
+     * Information about a transition between states.
+     * 
+     * @param target    The state to transition to
+     * @param source    The state to transition from
+     * @param condition The condition to transition on
+     * @param priority  The priority of this transition (lower is higher priority)
+     * @param name      The name of this transition (for debugging/visualization)
+     */
     public record TransitionInfo(State target, State source, BooleanSupplier condition, int priority, String name) {
     }
 
+    /**
+     * The parent state of this state. If this is null, this state is the root (or
+     * improperly configured!).
+     */
     public State parentState;
 
+    /**
+     * The event loop for this state. This is used to manage the timing and
+     * execution
+     * of actions within this state.
+     */
     protected final SmartEventLoop loop = new SmartEventLoop();
+
+    /**
+     * The parameters for this state. This can be used to make reusable states that
+     * can be configured.
+     */
     protected final JSONObject parameters;
 
     Map<State, List<TransitionInfo>> transitions = new HashMap<>();
@@ -54,6 +77,8 @@ public abstract class State {
      * Create a new state under the given state machine.
      * 
      * @param stateMachine The state machine this state belongs to
+     * @param parameters   The parameters for this state, used to configure it
+     *                     (can be used to make reusable states)
      */
     public State(StateMachineBase stateMachine, JSONObject parameters) {
         this.stateMachine = stateMachine;
@@ -65,6 +90,7 @@ public abstract class State {
      * 
      * @param state     The state to transition to
      * @param condition The condition to transition on
+     * @param name      The name of this transition (for debugging/visualization)
      * @return This state
      */
     public State withTransition(State state, BooleanSupplier condition, String name) {
@@ -77,6 +103,7 @@ public abstract class State {
      * @param state     The state to transition to
      * @param condition The condition to transition on
      * @param priority  The priority of this transition
+     * @param name      The name of this transition (for debugging/visualization)
      * @return This state
      */
     public State withTransition(State state, BooleanSupplier condition, int priority, String name) {
@@ -131,6 +158,8 @@ public abstract class State {
      * @param teleop   The state to transition to when teleop is enabled
      * @param auto     The state to transition to when auto is enabled
      * @param test     The state to transition to when test is enabled
+     * 
+     * @return This state
      */
     public State withModeTransitions(State disabled, State teleop, State auto, State test) {
         if (disabled != this)
@@ -149,8 +178,9 @@ public abstract class State {
      * 
      * @param disabled The state to transition to when disabled
      * @param teleop   The state to transition to when teleop is enabled
-     * @param auto     The state to transition to when auto is enabled
      * @param test     The state to transition to when test is enabled
+     * 
+     * @return This state
      */
     public State withModeTransitions(State disabled, State teleop, State test) {
         if (disabled != this)
@@ -167,9 +197,11 @@ public abstract class State {
     /**
      * Add a child state to this state.
      *
-     * @param child     The child state
-     * @param condition The condition to transition to this state
-     * @param priority  The priority of this state
+     * @param child                 The child state
+     * @param condition             The condition to transition to this state
+     * @param priority              The priority of this state
+     * @param entranceConditionName The name of the entrance condition for this
+     *                              state (for debugging/visualization)
      * 
      * @return This state
      */
@@ -180,6 +212,9 @@ public abstract class State {
 
     /**
      * Add a child state to this state (will never be entered by default)
+     * 
+     * @param child The child state
+     * @return This state
      */
     public State withChild(State child) {
         addChild(child, () -> false, Integer.MAX_VALUE, false, "impossible");
@@ -200,7 +235,7 @@ public abstract class State {
     /**
      * Remove all children from this state.
      * 
-     * @return
+     * @return This state
      */
     public State withNoChildren() {
         transitions.clear();
@@ -210,6 +245,7 @@ public abstract class State {
     /**
      * Set the name of this state.
      * 
+     * @param name The name to set
      * @return This state
      */
     public State withName(String name) {
@@ -238,7 +274,12 @@ public abstract class State {
     }
 
     /**
-     * Get the parameters of this state.
+     * Check if this state "is" another state, meaning it is the same state or a
+     * child of that state.
+     * 
+     * @param state The state to check against
+     * @return True if this state is the same as or a child of the given state,
+     *         false otherwise
      */
     public boolean is(State state) {
         if (state == this)
@@ -274,6 +315,13 @@ public abstract class State {
         }
     };
 
+    /**
+     * Shorthand to create a SmartTrigger bound to this state's event loop.
+     * 
+     * @param condition The condition to give to the trigger
+     * @return A SmartTrigger with the provided condition bound to this state's
+     *         event loop
+     */
     public SmartTrigger t(BooleanSupplier condition) {
         return new SmartTrigger(loop, condition);
     }
@@ -281,6 +329,8 @@ public abstract class State {
     /**
      * Run an action when the state is active
      * Cancels it if not already cancelled when the state is exited
+     * 
+     * @param cmd The command to run when the state is active
      */
     protected void startWhenActive(Command cmd) {
         startCommands.add(() -> cmd);
@@ -289,6 +339,8 @@ public abstract class State {
     /**
      * Run an action when the state is active
      * Cancels it if not already cancelled when the state is exited
+     * 
+     * @param cmd The command supplier to poll and run when the state is active
      */
     protected void startWhenActive(Supplier<Command> cmd) {
         startCommands.add(cmd);
@@ -326,7 +378,7 @@ public abstract class State {
     // return false;
     // }
 
-    public record TransitionEvalResult(State finalState, List<TransitionInfo> transitions) {
+    record TransitionEvalResult(State finalState, List<TransitionInfo> transitions) {
     }
 
     TransitionEvalResult evalTransitions(Stack<State> nodesToSearch, List<TransitionInfo> transitionList) {
