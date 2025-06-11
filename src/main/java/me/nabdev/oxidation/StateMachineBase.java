@@ -6,8 +6,10 @@ import java.util.Stack;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import me.nabdev.oxidation.State.TransitionEvalResult;
 import me.nabdev.oxidation.State.TransitionInfo;
@@ -19,6 +21,10 @@ import me.nabdev.oxidation.State.TransitionInfo;
  * the constructor.
  */
 public abstract class StateMachineBase {
+    private static NetworkTable table = NetworkTableInstance.getDefault().getTable("StateMachine");
+    private static NetworkTableEntry treeEntry = table.getEntry("Tree");
+    private static NetworkTableEntry currentStateEntry = table.getEntry("CurrentState");
+    private static NetworkTableEntry lastTransitionsEntry = table.getEntry("LastTransitions");
     /**
      * The root state of the state tree. This state will always be active, and all
      * other states will be children of this state.
@@ -48,15 +54,19 @@ public abstract class StateMachineBase {
         }
         List<TransitionInfo> lastTransitions = checkTransitions();
         currentState.run();
-        Logger.recordOutput("StateMachine/CurrentState", currentState.getDeepName());
-        Logger.recordOutput("StateMachine/Tree", getTree());
+        if (currentState != null) {
+            currentStateEntry.setString(currentState.getDeepName());
+        } else {
+            currentStateEntry.setString("null");
+        }
+        treeEntry.setString(getTree());
         if (lastTransitions.size() > 0) {
             JSONArray transitions = new JSONArray();
             for (TransitionInfo transition : lastTransitions) {
                 transitions
                         .put(transition.name() + transition.target().getDeepName() + transition.source().getDeepName());
             }
-            Logger.recordOutput("StateMachine/LastTransitions", transitions.toString());
+            lastTransitionsEntry.setString(transitions.toString());
         }
     }
 
